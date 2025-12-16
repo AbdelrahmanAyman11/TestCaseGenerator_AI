@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+        }
+        .result-box {
+            background-color: #f8f8f8;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            white-space: pre-wrap;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h2>🧠 Prompt Result</h2>
+    <p><strong>Your Prompt:</strong></p>
+    <div class="result-box">{{ user_prompt }}</div>
+    <br>
+    <p><strong>Response:</strong></p>
+    <div class="result-box">{{ result }}</div>
+</body>
+</html>
