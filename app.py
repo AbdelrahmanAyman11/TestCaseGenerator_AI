@@ -3,8 +3,15 @@ from groq import Groq
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
-import psycopg
 from datetime import datetime
+
+# Try to import psycopg2, but make it optional
+try:
+    import psycopg2
+    PSYCOPG_AVAILABLE = True
+except ImportError:
+    PSYCOPG_AVAILABLE = False
+    print("WARNING: psycopg2 not available. Database features will be disabled.")
  
 app = Flask(__name__)
 CORS(app)
@@ -20,13 +27,21 @@ client = Groq(api_key=API_KEY)
  
 def get_db_connection():
     """Get database connection"""
-    if not DATABASE_URL:
+    if not PSYCOPG_AVAILABLE or not DATABASE_URL:
         return None
-    conn = psycopg.connect(DATABASE_URL)
-    return conn
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        return conn
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        return None
 
 def save_prompt_response(prompt, response):
     """Save prompt and response to database"""
+    if not PSYCOPG_AVAILABLE:
+        print("Database not available - skipping save")
+        return
+    
     if not DATABASE_URL:
         print("WARNING: DATABASE_URL is not set. Data will not be saved to database.")
         return
