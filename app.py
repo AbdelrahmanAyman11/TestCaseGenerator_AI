@@ -12,6 +12,12 @@ CORS(app)
 load_dotenv()
 API_KEY = os.getenv("GROQ_API_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not API_KEY:
+    raise ValueError("GROQ_API_KEY environment variable is not set")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set")
+
 client = Groq(api_key=API_KEY)
  
 def get_db_connection():
@@ -42,23 +48,26 @@ def index():
         prompt = request.form.get("user_prompt", "")
  
         try:
-            completion = client.chat.completions.create(
-                model="meta-llama/llama-4-scout-17b-16e-instruct",
-                messages=[{
-                    "role": "user",
-                    "content": prompt
-                }],
-                temperature=1,
-                max_tokens=1024,
-                top_p=1
-            )
-            result = completion.choices[0].message.content
-           
-            # Save prompt and response to database
-            save_prompt_response(prompt, result)
+            if not prompt.strip():
+                result = "Error: Please enter a prompt"
+            else:
+                completion = client.chat.completions.create(
+                    model="meta-llama/llama-4-scout-17b-16e-instruct",
+                    messages=[{
+                        "role": "user",
+                        "content": prompt
+                    }],
+                    temperature=1,
+                    max_tokens=1024,
+                    top_p=1
+                )
+                result = completion.choices[0].message.content
+               
+                # Save prompt and response to database
+                save_prompt_response(prompt, result)
  
         except Exception as e:
-            result = f"Error: {e}"
+            result = f"Error: {str(e)}"
  
         return render_template("result.html", prompt=prompt, result=result)
  
