@@ -28,7 +28,8 @@ def get_db_connection():
 def save_prompt_response(prompt, response):
     """Save prompt and response to database"""
     if not DATABASE_URL:
-        return  # Skip saving if database URL is not configured
+        print("WARNING: DATABASE_URL is not set. Data will not be saved to database.")
+        return
     
     try:
         conn = get_db_connection()
@@ -41,6 +42,9 @@ def save_prompt_response(prompt, response):
             conn.commit()
             cursor.close()
             conn.close()
+            print("Data saved successfully to database")
+        else:
+            print("ERROR: Failed to establish database connection")
     except Exception as e:
         print(f"Database error: {e}")  # Log error but don't crash
  
