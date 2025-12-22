@@ -3,7 +3,7 @@ from groq import Groq
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
-import psycopg2
+import psycopg
 from datetime import datetime
  
 app = Flask(__name__)
@@ -16,7 +16,7 @@ client = Groq(api_key=API_KEY)
  
 def get_db_connection():
     """Get database connection"""
-    conn = psycopg2.connect(DATABASE_URL)
+    conn = psycopg.connect(DATABASE_URL)
     return conn
  
 def save_prompt_response(prompt, response):
