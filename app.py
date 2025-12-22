@@ -15,27 +15,34 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not API_KEY:
     raise ValueError("GROQ_API_KEY environment variable is not set")
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is not set")
 
 client = Groq(api_key=API_KEY)
  
 def get_db_connection():
     """Get database connection"""
+    if not DATABASE_URL:
+        return None
     conn = psycopg.connect(DATABASE_URL)
     return conn
- 
+
 def save_prompt_response(prompt, response):
     """Save prompt and response to database"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO prompts (prompt, response, timestamp)
-        VALUES (%s, %s, %s)
-    ''', (prompt, response, datetime.now()))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    if not DATABASE_URL:
+        return  # Skip saving if database URL is not configured
+    
+    try:
+        conn = get_db_connection()
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO prompts (prompt, response, timestamp)
+                VALUES (%s, %s, %s)
+            ''', (prompt, response, datetime.now()))
+            conn.commit()
+            cursor.close()
+            conn.close()
+    except Exception as e:
+        print(f"Database error: {e}")  # Log error but don't crash
  
 # Initialize database on startup
  
